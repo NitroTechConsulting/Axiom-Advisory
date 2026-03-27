@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apex Intelligence — AI Strategy Consulting</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0a0a08;
+    --paper: #f5f0e8;
+    --cream: #ede7d7;
+    --gold: #c8a96e;
+    --gold-light: #e8d4a8;
+    --rust: #b85c38;
+    --sage: #4a5e52;
+    --dim: #6b6459;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    width: 12px; height: 12px;
+    background: var(--gold);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s ease, width 0.2s, height 0.2s, background 0.2s;
+    mix-blend-mode: multiply;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1px solid var(--gold);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.18s ease, width 0.2s, height 0.2s;
+    opacity: 0.6;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 48px;
+    background: transparent;
+    mix-blend-mode: multiply;
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  .nav-links {
+    display: flex; gap: 40px; list-style: none;
+  }
+  .nav-links a {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--dim);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--ink); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 120px 64px 80px 64px;
+    position: relative;
+    z-index: 2;
+  }
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 28px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(52px, 6vw, 88px);
+    line-height: 1.0;
+    font-weight: 900;
+    color: var(--ink);
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.4s forwards;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--rust);
+  }
+  .hero-sub {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--dim);
+    max-width: 400px;
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s forwards;
+  }
+  .hero-cta-row {
+    display: flex; gap: 16px; align-items: center;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.8s forwards;
+  }
+  .btn-primary {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 16px 36px;
+    border: none;
+    cursor: none;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .btn-primary:hover { background: var(--rust); transform: translateY(-2px); }
+  .btn-ghost {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--dim);
+    text-decoration: none;
+    border-bottom: 1px solid var(--gold);
+    padding-bottom: 3px;
+    transition: color 0.2s;
+    cursor: none;
+  }
+  .btn-ghost:hover { color: var(--ink); }
+
+  .hero-right {
+    background: var(--cream);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hero-graphic {
+    width: 100%; height: 100%;
+    position: absolute;
+  }
+
+  /* Animated graphic */
+  .grid-lines {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(var(--gold-light) 1px, transparent 1px),
+      linear-gradient(90deg, var(--gold-light) 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: 0.4;
+    animation: gridShift 12s linear infinite;
+  }
+  @keyframes gridShift {
+    0% { background-position: 0 0; }
+    100% { background-position: 60px 60px; }
+  }
+
+  .stat-card {
+    position: absolute;
+    background: white;
+    border-left: 3px solid var(--gold);
+    padding: 20px 24px;
+    box-shadow: 0 4px 40px rgba(0,0,0,0.08);
+    min-width: 200px;
+  }
+  .stat-card:nth-child(2) { top: 25%; left: 15%; animation: float 6s ease-in-out infinite; }
+  .stat-card:nth-child(3) { top: 50%; right: 10%; animation: float 6s ease-in-out infinite 2s; }
+  .stat-card:nth-child(4) { bottom: 25%; left: 20%; animation: float 6s ease-in-out infinite 4s; }
+
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin-top: 6px;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+
+  /* TICKER */
+  .ticker {
+    background: var(--ink);
+    color: var(--gold);
+    overflow: hidden;
+    padding: 12px 0;
+  }
+  .ticker-inner {
+    display: flex;
+    animation: ticker 20s linear infinite;
+    white-space: nowrap;
+  }
+  .ticker-item {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-right: 80px;
+    flex-shrink: 0;
+  }
+  .ticker-dot { color: var(--rust); margin-right: 80px; }
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* SECTION BASE */
+  section { padding: 120px 0; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 64px; }
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::after {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 1px;
+    background: var(--gold);
+  }
+
+  /* SERVICES */
+  .services { background: white; }
+  .services-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    margin-bottom: 80px;
+    align-items: end;
+  }
+  .services-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 4vw, 56px);
+    font-weight: 900;
+    line-height: 1.1;
+  }
+  .services-desc {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--dim);
+  }
+
+  .service-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+  .service-card {
+    background: var(--cream);
+    padding: 48px 40px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+    cursor: none;
+  }
+  .service-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 3px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+  .service-card:hover { background: var(--ink); }
+  .service-card:hover .service-num,
+  .service-card:hover .service-name,
+  .service-card:hover .service-desc { color: var(--paper); }
+  .service-card:hover .service-price { color: var(--gold); }
+  .service-card:hover::before { transform: scaleX(1); }
+
+  .service-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 72px;
+    font-weight: 900;
+    color: var(--gold-light);
+    line-height: 1;
+    margin-bottom: 24px;
+    transition: color 0.3s;
+  }
+  .service-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    transition: color 0.3s;
+  }
+  .service-desc {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--dim);
+    margin-bottom: 24px;
+    transition: color 0.3s;
+  }
+  .service-price {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--rust);
+    font-weight: 500;
+    transition: color 0.3s;
+  }
+
+  /* PRICING */
+  .pricing { background: var(--ink); color: var(--paper); }
+  .pricing .section-label { color: var(--gold); }
+  .pricing-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 4vw, 56px);
+    font-weight: 900;
+    margin-bottom: 64px;
+    text-align: center;
+  }
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-bottom: 80px; }
+  .price-card {
+    background: rgba(255,255,255,0.04);
+    padding: 48px 40px;
+    border: 1px solid rgba(200,169,110,0.15);
+    transition: border-color 0.3s, background 0.3s;
+    position: relative;
+  }
+  .price-card.featured {
+    background: var(--gold);
+    border-color: var(--gold);
+  }
+  .price-card.featured * { color: var(--ink) !important; }
+  .price-card:hover:not(.featured) { border-color: var(--gold); background: rgba(200,169,110,0.06); }
+
+  .price-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin-bottom: 24px;
+  }
+  .price-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--paper);
+    margin-bottom: 8px;
+  }
+  .price-amount {
+    font-family: 'Playfair Display', serif;
+    font-size: 52px;
+    font-weight: 900;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .price-period {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--dim);
+    margin-bottom: 32px;
+  }
+  .price-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.1);
+    margin-bottom: 32px;
+  }
+  .price-features { list-style: none; }
+  .price-features li {
+    font-size: 14px;
+    color: rgba(245,240,232,0.7);
+    padding: 8px 0;
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+  }
+  .price-features li::before {
+    content: '→';
+    font-family: 'DM Mono', monospace;
+    color: var(--gold);
+    flex-shrink: 0;
+    font-size: 12px;
+  }
+
+  /* PROJECT PRICING TABLE */
+  .project-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 40px;
+  }
+  .project-table th {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    padding: 16px 24px;
+    text-align: left;
+    border-bottom: 1px solid rgba(200,169,110,0.2);
+  }
+  .project-table td {
+    padding: 20px 24px;
+    font-size: 14px;
+    color: rgba(245,240,232,0.8);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .project-table tr:hover td { background: rgba(255,255,255,0.03); }
+  .td-price { color: var(--gold); font-family: 'DM Mono', monospace; font-weight: 500; }
+  .td-time { color: var(--dim); font-family: 'DM Mono', monospace; font-size: 12px; }
+
+  /* PROCESS */
+  .process { background: var(--paper); }
+  .process-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 4vw, 56px);
+    font-weight: 900;
+    margin-bottom: 80px;
+    max-width: 500px;
+  }
+  .process-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+  .step {
+    padding: 48px 40px 48px 0;
+    border-right: 1px solid var(--gold-light);
+    position: relative;
+  }
+  .step:last-child { border-right: none; padding-right: 0; padding-left: 40px; }
+  .step:not(:first-child):not(:last-child) { padding: 48px 40px; }
+
+  .step-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    margin-bottom: 24px;
+  }
+  .step-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .step-desc {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--dim);
+  }
+
+  /* CTA */
+  .cta-section {
+    background: var(--rust);
+    padding: 120px 0;
+    text-align: center;
+  }
+  .cta-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(40px, 5vw, 72px);
+    font-weight: 900;
+    color: var(--paper);
+    margin-bottom: 24px;
+    line-height: 1.1;
+  }
+  .cta-sub {
+    font-size: 16px;
+    color: rgba(245,240,232,0.75);
+    margin-bottom: 48px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+  .btn-cta {
+    background: var(--paper);
+    color: var(--rust);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    padding: 20px 52px;
+    border: none;
+    cursor: none;
+    text-decoration: none;
+    display: inline-block;
+    font-weight: 500;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .btn-cta:hover { background: var(--ink); color: var(--gold); transform: translateY(-3px); }
+
+  /* FOOTER */
+  footer {
+    background: var(--ink);
+    padding: 60px 0;
+    display: flex;
+    align-items: center;
+  }
+  .footer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 64px;
+  }
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--paper);
+  }
+  .footer-tagline {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--dim);
+  }
+  .footer-location {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Mobile */
+  @media (max-width: 900px) {
+    nav { padding: 20px 24px; }
+    .nav-links { display: none; }
+    .hero { grid-template-columns: 1fr; }
+    .hero-right { display: none; }
+    .hero-left { padding: 100px 24px 60px; }
+    .container { padding: 0 24px; }
+    .services-header { grid-template-columns: 1fr; gap: 24px; }
+    .service-grid { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .process-steps { grid-template-columns: 1fr 1fr; }
+    .footer-inner { flex-direction: column; gap: 16px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Apex Intelligence</div>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#process">Process</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-left">
+    <div class="hero-eyebrow">Ho Chi Minh City · AI Strategy Consulting</div>
+    <h1 class="hero-title">
+      McKinsey<br>
+      quality.<br>
+      <em>Startup</em><br>
+      pricing.
+    </h1>
+    <p class="hero-sub">
+      Institutional-grade market research, strategy, and intelligence — delivered in 24–48 hours at a fraction of traditional consulting costs.
+    </p>
+    <div class="hero-cta-row">
+      <a href="#contact" class="btn-primary">Get a Free Sample</a>
+      <a href="#services" class="btn-ghost">View Services →</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="grid-lines"></div>
+    <div class="stat-card">
+      <div class="stat-num">48h</div>
+      <div class="stat-label">Delivery Time</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">98%</div>
+      <div class="stat-label">Margin Efficiency</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">$500</div>
+      <div class="stat-label">Starting Price</div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="ticker-item">Market Research</span><span class="ticker-dot">✦</span>
+    <span class="ticker-item">Go-To-Market Strategy</span><span class="ticker-dot">✦</span>
+    <span class="ticker-item">Investor Materials</span><span class="ticker-dot">✦</span>
+    <span class="ticker-item">Competitive Analysis</span><span class="ticker-dot">✦</span>
+    <span class="ticker-item">Financial Modelling</span><span class="ticker-dot">✦</span>
+    <span class="ticker-item">Southeast Asia Intelligence</span><span class="ticker-dot">✦</span>
+    <span class="ticker-item">Growth Playbooks</span><span class="ticker-dot">✦</span>
+    <span class="ticker-item">Market Research</span><span class="ticker-dot">✦</span>
+    <span class="ticker-item">Go-To-Market Strategy</span><span class="ticker-dot">✦</span>
+    <span class="ticker-item">Investor Materials</span><span class="ticker-dot">✦</span>
+    <span class="ticker-item">Competitive Analysis</span><span class="ticker-dot">✦</span>
+    <span class="ticker-item">Financial Modelling</span><span class="ticker-dot">✦</span>
+    <span class="ticker-item">Southeast Asia Intelligence</span><span class="ticker-dot">✦</span>
+    <span class="ticker-item">Growth Playbooks</span><span class="ticker-dot">✦</span>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section class="services" id="services">
+  <div class="container">
+    <div class="services-header reveal">
+      <div>
+        <div class="section-label">What We Do</div>
+        <h2 class="services-title">Three tiers.<br>One firm.</h2>
+      </div>
+      <p class="services-desc">
+        We don't offer everything. We offer three precise service tiers, each engineered to deliver maximum insight with zero wasted effort. Pick what your business needs today.
+      </p>
+    </div>
+    <div class="service-grid reveal">
+      <div class="service-card">
+        <div class="service-num">01</div>
+        <div class="service-name">Research & Intelligence</div>
+        <div class="service-desc">Market sizing, competitor analysis, industry trends, geopolitical risk briefings, and customer persona research — all source-cited and data-grounded.</div>
+        <div class="service-price">From $500 · 24h delivery</div>
+      </div>
+      <div class="service-card">
+        <div class="service-num">02</div>
+        <div class="service-name">Strategy & Growth</div>
+        <div class="service-desc">Go-to-market strategy, business model analysis, growth playbooks, and investor narrative — structured like a McKinsey deck, priced for founders.</div>
+        <div class="service-price">From $1,000 · 48h delivery</div>
+      </div>
+      <div class="service-card">
+        <div class="service-num">03</div>
+        <div class="service-name">Operations & Finance</div>
+        <div class="service-desc">Financial models, unit economics, operations audits, organizational design, and KPI dashboards — actionable outputs your team can execute immediately.</div>
+        <div class="service-price">From $800 · 24h delivery</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="section-label reveal" style="justify-content:center;">Pricing</div>
+    <h2 class="pricing-title reveal">Transparent pricing.<br><em style="font-style:italic;color:var(--gold)">No surprises.</em></h2>
+
+    <div class="pricing-grid reveal">
+      <div class="price-card">
+        <div class="price-badge">Starter</div>
+        <div class="price-name">Starter</div>
+        <div class="price-amount">$500</div>
+        <div class="price-period">/month retainer</div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li>2 research reports/month</li>
+          <li>Source-cited deliverables</li>
+          <li>PDF + Google Doc format</li>
+          <li>Email support</li>
+        </ul>
+      </div>
+      <div class="price-card featured">
+        <div class="price-badge">Most Popular</div>
+        <div class="price-name">Growth</div>
+        <div class="price-amount">$1,200</div>
+        <div class="price-period">/month retainer</div>
+        <div class="price-divider" style="background:rgba(0,0,0,0.15);"></div>
+        <ul class="price-features">
+          <li>4 research reports/month</li>
+          <li>1 full strategy document</li>
+          <li>Weekly market briefing</li>
+          <li>Priority delivery</li>
+          <li>WhatsApp access</li>
+        </ul>
+      </div>
+      <div class="price-card">
+        <div class="price-badge">Scale</div>
+        <div class="price-name">Scale</div>
+        <div class="price-amount">$2,500</div>
+        <div class="price-period">/month retainer</div>
+        <div class="price-divider"></div>
+        <ul class="price-features">
+          <li>Unlimited research</li>
+          <li>2 strategy docs/month</li>
+          <li>Dedicated communication</li>
+          <li>Rush delivery included</li>
+          <li>Monthly strategy call</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 class="reveal" style="font-family:'Playfair Display',serif;font-size:28px;text-align:center;margin-bottom:8px;color:var(--paper);">One-Time Projects</h3>
+    <p class="reveal" style="text-align:center;color:var(--dim);font-family:'DM Mono',monospace;font-size:12px;margin-bottom:0;">No retainer required. Pay per project.</p>
+    <table class="project-table reveal">
+      <thead>
+        <tr>
+          <th>Service</th>
+          <th>Price</th>
+          <th>Delivery</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Market Research Report (15–20 pages)</td><td class="td-price">$500–$1,500</td><td class="td-time">24h</td></tr>
+        <tr><td>Go-To-Market Strategy</td><td class="td-price">$1,000–$2,500</td><td class="td-time">48h</td></tr>
+        <tr><td>Financial Model + Commentary</td><td class="td-price">$800–$2,000</td><td class="td-time">24h</td></tr>
+        <tr><td>Full Strategy Deck (10–15 slides)</td><td class="td-price">$1,500–$3,500</td><td class="td-time">48–72h</td></tr>
+        <tr><td>Investor Pitch Narrative</td><td class="td-price">$1,000–$2,000</td><td class="td-time">24h</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="process" id="process">
+  <div class="container">
+    <div class="section-label reveal">How It Works</div>
+    <h2 class="process-title reveal">From brief to<br>boardroom-ready<br>in 48 hours.</h2>
+    <div class="process-steps reveal">
+      <div class="step">
+        <div class="step-num">01 / INTAKE</div>
+        <div class="step-title">You Submit a Brief</div>
+        <div class="step-desc">Fill in a simple form. Tell us your industry, question, and desired output. That's it — we handle the rest.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02 / RESEARCH</div>
+        <div class="step-title">We Research & Analyze</div>
+        <div class="step-desc">Our AI agents gather live market data, competitive intelligence, and industry trends — all source-cited, no hallucinations.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">03 / STRATEGY</div>
+        <div class="step-title">Strategy Is Generated</div>
+        <div class="step-desc">Analysis is transformed into specific, numbered, prioritized recommendations with 30/60/90-day implementation roadmaps.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">04 / DELIVERY</div>
+        <div class="step-title">Polished Output Delivered</div>
+        <div class="step-desc">You receive a professional PDF report — cover page, executive summary, full analysis, and appendix — directly to your inbox.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="contact">
+  <div class="container">
+    <h2 class="cta-title reveal">Ready to think<br><em style="font-style:italic;">bigger?</em></h2>
+    <p class="cta-sub reveal">First report on us. No credit card. No commitment.</p>
+    <a href="mailto:hello@apexintelligence.co" class="btn-cta reveal">Request Free Sample</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-logo">Apex Intelligence</div>
+      <div class="footer-tagline" style="margin-top:8px;">AI Strategy Consulting</div>
+    </div>
+    <div class="footer-location">📍 Ho Chi Minh City, Vietnam</div>
+  </div>
+</footer>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+  });
+
+  function animateRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
